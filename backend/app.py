@@ -1,4 +1,3 @@
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import numpy as np
@@ -13,8 +12,18 @@ modelo = load_model("modelo_desercion.h5")
 scaler = joblib.load("scaler_desercion.pkl")
 
 
-@app.route("/predecir", methods=["POST"])
+# 👉 NUEVA RUTA PARA PROBAR
+@app.route("/")
+def home():
+    return "API de predicción funcionando 🚀"
+
+
+# 👉 PERMITIR GET PARA PRUEBA
+@app.route("/predecir", methods=["GET", "POST"])
 def predecir():
+    if request.method == "GET":
+        return jsonify({"mensaje": "Endpoint listo, usa POST para predecir"})
+
     try:
         datos = request.json
 
@@ -60,7 +69,6 @@ def predecir():
 
         prediccion = modelo.predict(valores)
         resultado = int(prediccion[0][0] > 0.5)
-
         probabilidad = float(prediccion[0][0] * 100)
 
         return jsonify({
@@ -69,10 +77,4 @@ def predecir():
         })
 
     except Exception as e:
-        return jsonify({
-            "error": str(e)
-        })
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+        return jsonify({"error": str(e)})
