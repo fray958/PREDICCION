@@ -9,4 +9,4 @@ RUN pip install -r backend/requirements.txt
 
 WORKDIR /app/backend
 
-CMD ["gunicorn", "backend.app:app", "--bind", "0.0.0.0:$PORT"]
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"]
