@@ -12,21 +12,23 @@ modelo = load_model("modelo_desercion.h5")
 scaler = joblib.load("scaler_desercion.pkl")
 
 
-# 👉 NUEVA RUTA PARA PROBAR
+# 👉 Ruta de prueba
 @app.route("/")
 def home():
     return "API de predicción funcionando 🚀"
 
 
-# 👉 PERMITIR GET PARA PRUEBA
+# 👉 Endpoint de predicción
 @app.route("/predecir", methods=["GET", "POST"])
 def predecir():
+
     if request.method == "GET":
         return jsonify({"mensaje": "Endpoint listo, usa POST para predecir"})
 
     try:
         datos = request.json
 
+        # 🔥 Armar vector EXACTO (orden del modelo)
         valores = [[
             datos["Marital status"],
             datos["Application mode"],
@@ -64,12 +66,24 @@ def predecir():
             datos["GDP"]
         ]]
 
+        # Convertir a numpy
         valores = np.array(valores)
+
+        # Escalar
         valores = scaler.transform(valores)
 
+        # 🔥 Predicción
         prediccion = modelo.predict(valores)
+
+        # 🔥 DEBUG (ver en Railway logs)
+        print("VALORES:", valores)
+        print("PREDICCION RAW:", prediccion)
+
+        # Resultado binario
         resultado = int(prediccion[0][0] > 0.5)
-        probabilidad = float(prediccion[0][0] * 100)
+
+        # 🔥 PROBABILIDAD CORRECTA
+        probabilidad = float(prediccion[0][0]) * 100
 
         return jsonify({
             "prediccion": resultado,
@@ -77,4 +91,5 @@ def predecir():
         })
 
     except Exception as e:
+        print("ERROR:", str(e))  # ver en logs
         return jsonify({"error": str(e)})
